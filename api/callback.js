@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
               if (window.opener) {
                 window.opener.postMessage(
                   '${message}',
-                  'https://jinsugyeong.github.io'
+                  '*'
                 );
                 setTimeout(function() { window.close(); }, 500);
               }
