@@ -20,7 +20,8 @@ module.exports = async (req, res) => {
 
     const token = accessToken.token.access_token || accessToken.token.token?.access_token;
     const message = `authorization:github:success:{"token":"${token}","provider":"github"}`;
-
+    
+    res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
     res.send(`
       <!DOCTYPE html>
       <html>

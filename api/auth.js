@@ -21,5 +21,6 @@ module.exports = (req, res) => {
     state: state  // ← Decap이 보낸 state 그대로 사용
   });
 
+  res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
   res.redirect(authorizationUri);
 };
