@@ -1,4 +1,5 @@
 // auth.js
+const { AuthorizationCode } = require('simple-oauth2');
 const crypto = require('crypto');
 
 module.exports = (req, res) => {
