@@ -16,11 +16,11 @@ module.exports = async (req, res) => {
       code: req.query.code,
       redirect_uri: `https://${req.headers.host}/api/callback`
     });
+    console.log('token object:', JSON.stringify(accessToken.token));
 
-    const token = accessToken.token.access_token;
+    const token = accessToken.token.access_token || accessToken.token.token?.access_token;
     const message = `authorization:github:success:{"token":"${token}","provider":"github"}`;
 
-    // message를 JS 변수로 HTML에 주입할 때는 JSON.stringify로 이스케이프
     res.send(`
       <!DOCTYPE html>
       <html>
@@ -33,7 +33,9 @@ module.exports = async (req, res) => {
             function sendMessage() {
               if (window.opener) {
                 window.opener.postMessage(message, '*');
-                setTimeout(function() { window.close(); }, 5000);
+                setTimeout(function() { window.close(); }, 5000); // 5초 후에 창 닫기
+              }else {
+                console.log('opener 없음');
               }
             }
             if (document.readyState === 'complete') {
