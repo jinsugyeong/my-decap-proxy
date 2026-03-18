@@ -1,0 +1,6 @@
+{
+  "name": "my-decap-proxy",
+  "dependencies": {
+    "simple-oauth2": "^4.3.0"
+  }
+}
