@@ -27,11 +27,13 @@ module.exports = async (req, res) => {
       <body>
         <script>
           (function() {
-            var message = ${JSON.stringify(message)};  // ← 이렇게 변경
+            var message = ${JSON.stringify(message)}; 
+            console.log('opener:', window.opener);
+            console.log('message:', message); 
             function sendMessage() {
               if (window.opener) {
                 window.opener.postMessage(message, '*');
-                setTimeout(function() { window.close(); }, 500);
+                setTimeout(function() { window.close(); }, 5000);
               }
             }
             if (document.readyState === 'complete') {
