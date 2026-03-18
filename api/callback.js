@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
 
     const token = accessToken.token.access_token || accessToken.token.token?.access_token;
     const message = `authorization:github:success:{"token":"${token}","provider":"github"}`;
-    
+
     res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
     res.send(`
       <!DOCTYPE html>
@@ -28,22 +28,20 @@ module.exports = async (req, res) => {
       <body>
         <script>
           (function() {
-            var message = ${JSON.stringify(message)}; 
+            var message = ${JSON.stringify(message)};
             console.log('opener:', window.opener);
-            console.log('message:', message); 
-            function sendMessage() {
-              if (window.opener) {
-                window.opener.postMessage(message, '*');
-                setTimeout(function() { window.close(); }, 5000); // 5초 후에 창 닫기
-              }else {
-                console.log('opener 없음');
-              }
+            console.log('message:', message);
+            
+            function receiveMessage(e) {
+              console.log('부모로부터 받음:', e.data, e.origin);
+              window.opener.postMessage(message, e.origin);
+              window.removeEventListener('message', receiveMessage);
+              setTimeout(function() { window.close(); }, 500);
             }
-            if (document.readyState === 'complete') {
-              sendMessage();
-            } else {
-              window.addEventListener('load', sendMessage);
-            }
+            
+            window.addEventListener('message', receiveMessage);
+            window.opener.postMessage('authorizing:github', '*');
+            //authorizing:github를 부모에게 보내고, 부모가 응답하면 origin으로 토큰 보내기
           })();
         </script>
       </body>
