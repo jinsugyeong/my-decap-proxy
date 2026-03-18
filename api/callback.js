@@ -20,22 +20,20 @@ module.exports = async (req, res) => {
     const token = accessToken.token.access_token;
     const message = `authorization:github:success:{"token":"${token}","provider":"github"}`;
 
+    // message를 JS 변수로 HTML에 주입할 때는 JSON.stringify로 이스케이프
     res.send(`
       <!DOCTYPE html>
       <html>
       <body>
         <script>
           (function() {
+            var message = ${JSON.stringify(message)};  // ← 이렇게 변경
             function sendMessage() {
               if (window.opener) {
-                window.opener.postMessage(
-                  '${message}',
-                  '*'
-                );
+                window.opener.postMessage(message, '*');
                 setTimeout(function() { window.close(); }, 500);
               }
             }
-            // DOM 완전히 로드된 후 실행
             if (document.readyState === 'complete') {
               sendMessage();
             } else {
@@ -46,6 +44,7 @@ module.exports = async (req, res) => {
       </body>
       </html>
     `);
+
   } catch (error) {
     res.status(500).send("Authentication Error: " + error.message);
   }
