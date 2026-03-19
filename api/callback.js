@@ -29,19 +29,27 @@ module.exports = async (req, res) => {
         <script>
           (function() {
             var message = ${JSON.stringify(message)};
-            console.log('opener:', window.opener);
-            console.log('message:', message);
-            
-            function receiveMessage(e) {
-              console.log('부모로부터 받음:', e.data, e.origin);
-              window.opener.postMessage(message, e.origin);
-              window.removeEventListener('message', receiveMessage);
-              setTimeout(function() { window.close(); }, 500);
+            if (window.opener) {
+              var sent = false;
+              function receiveMessage(e) {
+                if (sent) return;
+                sent = true;
+                window.opener.postMessage(message, e.origin);
+                window.removeEventListener('message', receiveMessage);
+                setTimeout(function() { window.close(); }, 500);
+              }
+              window.addEventListener('message', receiveMessage);
+              window.opener.postMessage('authorizing:github', '*');
+              
+              // 1.5초 후에도 응답 없으면 커스텀 웹앱용으로 전송
+              setTimeout(function() {
+                if (!sent) {
+                  sent = true;
+                  window.opener.postMessage(message, '*');
+                  setTimeout(function() { window.close(); }, 500);
+                }
+              }, 1500);
             }
-            
-            window.addEventListener('message', receiveMessage);
-            window.opener.postMessage('authorizing:github', '*');
-            //authorizing:github를 부모에게 보내고, 부모가 응답하면 origin으로 토큰 보내기
           })();
         </script>
       </body>
