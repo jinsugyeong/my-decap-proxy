@@ -1,4 +1,3 @@
-// callback.js
 const { AuthorizationCode } = require('simple-oauth2');
 
 module.exports = async (req, res) => {
@@ -16,7 +15,6 @@ module.exports = async (req, res) => {
       code: req.query.code,
       redirect_uri: `https://${req.headers.host}/api/callback`
     });
-    console.log('token object:', JSON.stringify(accessToken.token));
 
     const token = accessToken.token.access_token || accessToken.token.token?.access_token;
     const message = `authorization:github:success:{"token":"${token}","provider":"github"}`;
@@ -27,35 +25,14 @@ module.exports = async (req, res) => {
       <html>
       <body>
         <script>
-          (function() {
-            var message = ${JSON.stringify(message)};
-            if (window.opener) {
-              var sent = false;
-              function receiveMessage(e) {
-                if (sent) return;
-                sent = true;
-                window.opener.postMessage(message, e.origin);
-                window.removeEventListener('message', receiveMessage);
-                setTimeout(function() { window.close(); }, 500);
-              }
-              window.addEventListener('message', receiveMessage);
-              window.opener.postMessage('authorizing:github', '*');
-              
-              // 1.5초 후에도 응답 없으면 커스텀 웹앱용으로 전송
-              setTimeout(function() {
-                if (!sent) {
-                  sent = true;
-                  window.opener.postMessage(message, '*');
-                  setTimeout(function() { window.close(); }, 500);
-                }
-              }, 1500);
-            }
-          })();
+          if (window.opener) {
+            window.opener.postMessage(${JSON.stringify(message)}, '*');
+          }
+          setTimeout(function() { window.close(); }, 300);
         </script>
       </body>
       </html>
     `);
-
   } catch (error) {
     res.status(500).send("Authentication Error: " + error.message);
   }

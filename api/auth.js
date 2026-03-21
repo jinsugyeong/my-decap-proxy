@@ -1,4 +1,3 @@
-// auth.js
 const { AuthorizationCode } = require('simple-oauth2');
 const crypto = require('crypto');
 
@@ -12,13 +11,10 @@ module.exports = (req, res) => {
     }
   });
 
-  // state를 쿼리에서 받아서 그대로 넘겨줌
-  const state = req.query.state || crypto.randomBytes(16).toString('hex');
-
   const authorizationUri = client.authorizeURL({
     redirect_uri: `https://${req.headers.host}/api/callback`,
     scope: 'repo,user',
-    state: state  // ← Decap이 보낸 state 그대로 사용
+    state: crypto.randomBytes(16).toString('hex')
   });
 
   res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
